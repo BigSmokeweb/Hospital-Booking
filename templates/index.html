@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AarogyaCare - Hospital Appointment System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Flatpickr CSS for custom Calendar and Time dropdown -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <style>
+    :root {
+      --bg-dark: #000000;
+      --bg-gradient: radial-gradient(circle at 50% 0%, #1f242d 0%, #111418 50%, #050608 100%);
+      --surface-1: rgba(22, 27, 34, 0.75);
+      --surface-2: rgba(33, 38, 45, 0.85);
+      --surface-input: #0d1117;
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --border-focus: #ffffff;
+      
+      --text-white: #ffffff;
+      --text-muted: #8b949e;
+      --text-dim: #6e7681;
+      
+      --badge-bg: #161b22;
+      --badge-border: #30363d;
+      
+      --danger-bg: rgba(248, 81, 73, 0.15);
+      --danger-border: rgba(248, 81, 73, 0.4);
+      --danger-text: #ff7b72;
+      
+      --success-bg: rgba(46, 160, 67, 0.15);
+      --success-border: rgba(46, 160, 67, 0.4);
+      --success-text: #56d364;
+
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+
+    /* Custom Modern Monochrome Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d13;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #4b5563, #1f2937);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #6b7280, #374151);
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #4b5563 #090d13;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-white);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    .brand-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(180deg, #ffffff 20%, #9ca3af 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.7px;
+    }
+
+    .brand-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    .header-pills {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .badge-pill {
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--text-muted);
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .badge-pill span {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Cards & Layout */
+    .section-card {
+      background: var(--surface-1);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      margin-bottom: 2rem;
+      transition: border-color 0.2s;
+    }
+
+    .section-card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .card-header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Full Scale Doctor Directory Grid */
+    .doctor-search-box {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .doctor-search-box input {
+      flex: 1;
+    }
+
+    .doctor-count-badge {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-subtle);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(13, 17, 23, 0.6);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(22, 27, 34, 0.8);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    td {
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .rupee-price {
+      font-weight: 700;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .btn-select-doc {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-select-doc:hover {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    /* Appointment Scheduling Layout */
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 950px) {
+      .schedule-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Form Fields */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1.1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--surface-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      color: #ffffff;
+      font-size: 0.92rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+    }
+
+    select option {
+      background: #111418;
+      color: #ffffff;
+      padding: 6px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(180deg, #ffffff 0%, #d1d5db 100%);
+      color: #000000;
+      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-gradient:hover {
+      background: #ffffff;
+      transform: translateY(-1.5px);
+      box-shadow: 0 6px 22px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-cancel {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border: 1px solid var(--danger-border);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #dc2626;
+    }
+
+    /* System Requirements & Safeguards Panel inside schedule section */
+    .system-rules-panel {
+      background: rgba(13, 17, 23, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .rules-header {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.5rem;
+    }
+
+    .rule-item {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .rule-icon {
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .status-badge {
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-block;
+      letter-spacing: 0.5px;
+    }
+
+    .status-ACTIVE {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .status-CANCELLED {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border: 1px solid var(--danger-border);
+    }
+
+    .specialization-tag {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #e5e7eb;
+    }
+
+    .banner {
+      padding: 0.95rem 1.4rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      display: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .banner-error {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      color: #ffa198;
+    }
+
+    .banner-success {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: #7ee787;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .flatpickr-calendar {
+      background: #0d1117 !important;
+      border: 1px solid #30363d !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1 class="brand-title">AarogyaCare</h1>
+        <p class="brand-subtitle">Smart Hospital Scheduling & Patient Appointment Management</p>
+      </div>
+      <div class="header-pills">
+        <div class="badge-pill">Currency: <span>₹ INR</span></div>
+        <div class="badge-pill">Active Cap: <span>Max 2 / Patient</span></div>
+        <div class="badge-pill">Refund Policy: <span>100% (>24h) | 50% (≤24h)</span></div>
+      </div>
+    </header>
+
+    <div id="banner" class="banner"></div>
+
+    <!-- FULL SCALE DOCTOR DIRECTORY PANEL -->
+    <div class="section-card">
+      <div class="card-header-flex">
+        <h2>Doctor Directory & Specialization Search</h2>
+        <div class="doctor-count-badge" id="doctor-count-badge">Displaying 50 Doctors</div>
+      </div>
+      <div class="doctor-search-box">
+        <input type="text" id="doctor-search" placeholder="Type doctor name or specialization (e.g. Cardiology, Dr. Sharma, Neurology)..." oninput="filterDoctors()">
+      </div>
+      <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 80px;">Doctor ID</th>
+              <th>Doctor Name</th>
+              <th>Specialization</th>
+              <th>Consultation Fee</th>
+              <th style="text-align: right;">Quick Action</th>
+            </tr>
+          </thead>
+          <tbody id="doctors-table-body">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 2rem;">Loading doctor directory...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SCHEDULE APPOINTMENT PANEL (With Embedded System Requirements) -->
+    <div class="section-card">
+      <div class="card-header-flex">
+        <h2>Schedule Patient Appointment</h2>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Enter manual patient details below</span>
+      </div>
+
+      <div class="schedule-grid">
+        <!-- Form for Manual Patient Input & Slot Selection -->
+        <form id="booking-form" onsubmit="handleBook(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patient-name">Patient Full Name *</label>
+              <input type="text" id="patient-name" placeholder="e.g. Rajesh Kumar" required>
+            </div>
+            <div class="form-group">
+              <label for="patient-phone">Phone Number *</label>
+              <input type="tel" id="patient-phone" placeholder="e.g. 9876543210" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patient-age">Patient Age *</label>
+              <input type="number" id="patient-age" placeholder="e.g. 34" min="1" max="120" required>
+            </div>
+            <div class="form-group">
+              <label for="patient-address">Address / City *</label>
+              <input type="text" id="patient-address" placeholder="e.g. Sector 14, Mumbai" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="select-doctor">Selected Doctor *</label>
+              <select id="select-doctor" required>
+                <option value="">-- Choose Doctor from Directory --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="slot-datetime">Appointment Date & Time *</label>
+              <input type="text" id="slot-datetime" placeholder="Click to open calendar & time picker..." required readonly>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-gradient" id="book-btn" style="margin-top: 0.5rem;">Confirm & Book Appointment</button>
+        </form>
+
+        <!-- System Requirements & Policy Rules Panel -->
+        <div class="system-rules-panel">
+          <div>
+            <div class="rules-header">System Safeguards & Rules</div>
+            <div class="rule-item">
+              <div class="rule-icon">1.</div>
+              <div><strong>Double Booking Lock:</strong> A doctor cannot be scheduled for the same date & time slot twice. Conflict triggers instant 409 rejection.</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-icon">2.</div>
+              <div><strong>Patient Active Limit:</strong> Each patient (identified by phone) is restricted to a maximum of <strong>2 active bookings</strong>.</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-icon">3.</div>
+              <div><strong>Date Validation:</strong> Past or expired time slots are rejected automatically by the system.</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-icon">4.</div>
+              <div><strong>Automated ₹ Refund Policy:</strong> 
+                <br>• > 24 hours notice: <strong>100% refund</strong>
+                <br>• ≤ 24 hours notice: <strong>50% refund</strong>
+              </div>
+            </div>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.6rem;">
+            AarogyaCare Enterprise Scheduler v2.1 • All fees calculated in Indian Rupees (₹)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKED APPOINTMENTS LEDGER -->
+    <div class="section-card">
+      <div class="card-header-flex">
+        <h2>Booked Appointments Ledger</h2>
+        <button onclick="loadAppointments()" style="background: var(--surface-input); border: 1px solid var(--border-subtle); color: var(--text-white); padding: 0.45rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Refresh List</button>
+      </div>
+
+      <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Appt ID</th>
+              <th>Patient Details</th>
+              <th>Doctor</th>
+              <th>Specialization</th>
+              <th>Slot Time</th>
+              <th>Fee</th>
+              <th>Status</th>
+              <th>Refund Info</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="appointments-table-body">
+            <tr><td colspan="9" style="text-align: center; color: var(--text-dim); padding: 2rem;">No appointments recorded.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    let doctorsData = [];
+    let fpInstance = null;
+
+    function showBanner(message, isError = false) {
+      const banner = document.getElementById('banner');
+      banner.className = `banner ${isError ? 'banner-error' : 'banner-success'}`;
+      banner.innerText = message;
+      banner.style.display = 'block';
+      setTimeout(() => { banner.style.display = 'none'; }, 6000);
+    }
+
+    async function fetchDoctors(query = '') {
+      const res = await fetch(`/api/doctors?q=${encodeURIComponent(query)}`);
+      return await res.json();
+    }
+
+    async function loadDoctors() {
+      doctorsData = await fetchDoctors();
+      renderDoctorsTable(doctorsData);
+      populateDoctorSelect(doctorsData);
+    }
+
+    async function filterDoctors() {
+      const q = document.getElementById('doctor-search').value;
+      const filtered = await fetchDoctors(q);
+      renderDoctorsTable(filtered);
+    }
+
+    function renderDoctorsTable(doctors) {
+      const tbody = document.getElementById('doctors-table-body');
+      const countBadge = document.getElementById('doctor-count-badge');
+      countBadge.innerText = `Displaying ${doctors.length} Doctor${doctors.length === 1 ? '' : 's'}`;
+
+      if (doctors.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-dim); padding: 2rem;">No matching doctors found in directory.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = doctors.map(d => `
+        <tr>
+          <td style="color: var(--text-dim); font-weight: 600;">#${d.id}</td>
+          <td style="font-weight: 700; color: #fff;">${d.name}</td>
+          <td><span class="specialization-tag">${d.specialization}</span></td>
+          <td class="rupee-price">₹${d.consultation_fee.toLocaleString('en-IN')}</td>
+          <td style="text-align: right;">
+            <button class="btn-select-doc" onclick="selectDoctorFromTable(${d.id})">Select for Booking</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function selectDoctorFromTable(doctorId) {
+      const select = document.getElementById('select-doctor');
+      select.value = doctorId;
+      select.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      select.style.borderColor = '#ffffff';
+      setTimeout(() => { select.style.borderColor = 'rgba(255,255,255,0.1)'; }, 1500);
+    }
+
+    function populateDoctorSelect(doctors) {
+      const select = document.getElementById('select-doctor');
+      select.innerHTML = '<option value="">-- Choose Doctor from Directory --</option>' +
+        doctors.map(d => `<option value="${d.id}">${d.name} - ${d.specialization} (₹${d.consultation_fee})</option>`).join('');
+    }
+
+    async function loadAppointments() {
+      const res = await fetch('/api/appointments');
+      const list = await res.json();
+      const tbody = document.getElementById('appointments-table-body');
+
+      if (!list || list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-dim); padding: 2rem;">No appointments recorded.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(a => {
+        const canCancel = a.status === 'ACTIVE';
+        const refundTxt = a.status === 'CANCELLED' 
+          ? `${a.refund_percentage}% (₹${a.refund_amount.toLocaleString('en-IN')})` 
+          : '-';
+        return `
+          <tr>
+            <td style="color: var(--text-dim);">#${a.id}</td>
+            <td>
+              <div style="font-weight: 700; color: #fff;">${a.patient_name} <span style="font-weight: 400; font-size: 0.8rem; color: var(--text-muted);">(Age: ${a.patient_age || 'N/A'})</span></div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">📞 ${a.patient_phone || '-'} | 📍 ${a.patient_address || '-'}</div>
+            </td>
+            <td style="font-weight: 600;">${a.doctor_name}</td>
+            <td><span class="specialization-tag">${a.specialization}</span></td>
+            <td>${a.slot_time}</td>
+            <td class="rupee-price">₹${a.fee.toLocaleString('en-IN')}</td>
+            <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+            <td style="font-weight: 500;">${refundTxt}</td>
+            <td>
+              ${canCancel 
+                ? `<button class="btn-cancel" onclick="cancelAppointment(${a.id})">Cancel</button>` 
+                : `<span style="color: var(--text-dim); font-size: 0.8rem;">Closed</span>`}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function handleBook(e) {
+      e.preventDefault();
+      const name = document.getElementById('patient-name').value.trim();
+      const phone = document.getElementById('patient-phone').value.trim();
+      const age = document.getElementById('patient-age').value.trim();
+      const address = document.getElementById('patient-address').value.trim();
+      const doctorId = document.getElementById('select-doctor').value;
+      const slotVal = document.getElementById('slot-datetime').value;
+
+      if (!slotVal) {
+        showBanner('Please select an appointment date & time from the calendar.', true);
+        return;
+      }
+
+      const formattedSlot = slotVal.length === 16 ? slotVal + ':00' : slotVal;
+
+      try {
+        const res = await fetch('/api/appointments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            patient_name: name,
+            patient_phone: phone,
+            patient_age: age,
+            patient_address: address,
+            doctor_id: doctorId,
+            slot_time: formattedSlot
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showBanner(`Appointment #${data.appointment_id} successfully booked for ${name} (₹${data.fee.toLocaleString('en-IN')})!`);
+          document.getElementById('booking-form').reset();
+          if (fpInstance) fpInstance.clear();
+          loadAppointments();
+        } else {
+          showBanner(data.error || 'Failed to book appointment', true);
+        }
+      } catch (err) {
+        showBanner('Network error occurred.', true);
+      }
+    }
+
+    async function cancelAppointment(id) {
+      if (!confirm(`Are you sure you want to cancel appointment #${id}? Refund rules will apply.`)) {
+        return;
+      }
+      try {
+        const res = await fetch(`/api/appointments/${id}/cancel`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showBanner(`Appointment #${id} cancelled. Refund: ₹${data.refund_amount.toLocaleString('en-IN')} (${data.refund_percentage}%)`);
+          loadAppointments();
+        } else {
+          showBanner(data.error || 'Failed to cancel appointment.', true);
+        }
+      } catch (err) {
+        showBanner('Network error while cancelling.', true);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      fpInstance = flatpickr("#slot-datetime", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minDate: "today",
+        time_24hr: true,
+        minuteIncrement: 15,
+        defaultHour: 10,
+        theme: "dark"
+      });
+
+      loadDoctors();
+      loadAppointments();
+    });
+  </script>
+</body>
+</html>
